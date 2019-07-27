@@ -13,8 +13,8 @@ pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-teams = ["BOS", "TBL", "TOR", "MTL", "FLA", "BUF", "DET", "OTT"]
-#teams = ["TBL"]
+teams = ["BOS", "TBL", "TOR", "MTL", "FLA", "BUF", "DET", "OTT"] #Atlantic Division
+teams = ["WSH", "NYI", "PIT", "CAR", "CBJ", "PHI", "NYR", "NJD"] #Metropolitan Divison
 
 
 team_schedule_list = []
