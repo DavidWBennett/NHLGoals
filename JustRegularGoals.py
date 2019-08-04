@@ -39,7 +39,7 @@ def JustRegularGoals(df, dates):
             df.loc[i,'Period'] = df.loc[i,'Period'].strip()[:1]      
     
     
-    df['Assist2'] = df['Assist2'].str.strip(' and ')
+    df['Assist2'] = df['Assist2'].str.lstrip(' and ')
     df["Time in Period (split)"] = df["Time in Period"].str.split(":")
     tags = df["Time in Period (split)"].apply(pd.Series)
     tags = tags.rename(columns = lambda x: 'tag_' + str(x))
