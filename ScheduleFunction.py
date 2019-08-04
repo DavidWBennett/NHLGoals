@@ -13,8 +13,10 @@ pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-teams = ["BOS", "TBL", "TOR", "MTL", "FLA", "BUF", "DET", "OTT"] #Atlantic Division
+#teams = ["BOS", "TBL", "TOR", "MTL", "FLA", "BUF", "DET", "OTT"] #Atlantic Division
 teams = ["WSH", "NYI", "PIT", "CAR", "CBJ", "PHI", "NYR", "NJD"] #Metropolitan Divison
+#teams = ["NSH", "STL", "WPG", "DAL", "CHI", "COL", "MIN"] #Central Divison
+#teams = ["CGY", "SJS", "VEG", "ARI", "VAN", "ANA", "EDM", "LAK"] #Pacific Divison
 year = 2019 #Change this to pull previous years' data.
 
 team_schedule_list = []
@@ -31,6 +33,8 @@ for team in teams:
     for link in all_links:
         game_links.append(link.get("href"))
     
+    #This section is for extracting the identifier for each game, which is the date,
+    #followed by a 0, and the three letter home team. Example: 201811040BOS
     game_links = [x for x in game_links if "boxscores/20" in x]
     game_links = [s.strip("/boxscores/") for s in game_links]
     game_links = [s.strip(".html") for s in game_links]
