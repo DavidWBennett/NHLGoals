@@ -14,7 +14,6 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import pandas as pd
 import time
-#import AllRegGoals
 import PPandRegularGoals
 import JustRegularGoals
 import ScheduleFunction
@@ -40,7 +39,7 @@ for schedule in schedules:
         str_cells = str(rows)
         cleantext = BeautifulSoup(str_cells, 'lxml').get_text()
         
-        try: #
+        try: #This is needed because some of the games have two types of goals. For example, SH and EN. I needed to account for these.
             commaindex = cleantext.index("\n\t\t\t,") #
             commaindex = commaindex + 4 #
             cleantext = cleantext[:(commaindex-4)] +  cleantext[(commaindex+6):(commaindex+8)] + "\n\n" + cleantext[(commaindex+8):] #
@@ -48,15 +47,14 @@ for schedule in schedules:
         except ValueError:
             s = cleantext.split(',')
             
-        try: #
-            commaindex = cleantext.index("\n\t\t\t,") #It's only getting the first instnace. We need it to get all the instances.
+        try: # Some games had two types of goals, twice. Therefore, I needed to repeat this section of code. I never saw a game with two types of goals, three times.
+            commaindex = cleantext.index("\n\t\t\t,") 
             commaindex = commaindex + 4 #
             cleantext = cleantext[:(commaindex-4)] +  cleantext[(commaindex+6):(commaindex+8)] + "\n\n" + cleantext[(commaindex+8):] #
             s = cleantext.split(',') #
         except ValueError:
             s = s
         
-        #s = cleantext.split(',')
             
         for i in range(1,len(s)):
             s[i] = s[i].replace("\t", "")
@@ -95,7 +93,7 @@ for schedule in schedules:
     season_game_list.append(goals)
 
 
-#game_list
+
 goals = pd.concat(season_game_list).reset_index().drop(columns = ['index'])
-MetropolitanGoals = goals.drop_duplicates()
-MetropolitanGoals.to_csv("Metropolitan2019.csv") #Took 27 minutes with only WSH and BOS, but it worked!
+MetropolitanGoals = goals.drop_duplicates() #The 'Metropolitan' can be changed according to what division is being extracted.
+MetropolitanGoals.to_csv("Metropolitan2019.csv") #The 'Metropolitan' can be changed according to what division is being extracted.
