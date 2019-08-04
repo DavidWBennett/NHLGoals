@@ -67,7 +67,7 @@ def PPandRegularGoals(df, dates):
     df['Scorer'], df['Season Goal Number'] = df['Scorer'].str.split('(',1).str
     df['Season Goal Number'] = df['Season Goal Number'].str.rstrip(')')
     df['Period'] = df['Period'].str.replace(r"[a-zA-Z]", "").str.strip().astype(int)
-    df['Assist2'] = df['Assist2'].str.strip(' and ')
+    df['Assist2'] = df['Assist2'].str.lstrip(' and ')
     df['Date'] = dates
         
     df["Time in Period (split)"] = df["Time in Period"].str.split(":")
