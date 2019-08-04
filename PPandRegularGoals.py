@@ -90,6 +90,22 @@ def PPandRegularGoals(df, dates):
     df["Date"] = str(dates)[:8]
     df["Date"] = pd.to_datetime(df["Date"])
     df["Home Team"] = str(dates)[9:]
+    
+    df["Game Goal Number"]  = df.index+1
+    
+    #The following user defined function came from StackOverflow
+    # https://stackoverflow.com/questions/25119524/pandas-conditional-rolling-count
+    def count_consecutive_items_n_cols(df, col_name_list, output_col):
+        cum_sum_list = [
+            (df[col_name] != df[col_name].shift(1)).cumsum().tolist() for col_name in col_name_list
+        ]
+        df[output_col] = df.groupby(
+            ["_".join(map(str, x)) for x in zip(*cum_sum_list)]
+        ).cumcount() + 1
+        return df
+    df = df.sort_values(by=['Team'])
+    cleanedDF = count_consecutive_items_n_cols(df, ["Team", "Date"], "Team Goal Number")
+    
     cleanedDF = df
     return cleanedDF    
     
