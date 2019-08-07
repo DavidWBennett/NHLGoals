@@ -48,22 +48,36 @@ def JustRegularGoals(df, dates):
     for i in range(0,len(df)):
         if df.loc[i,"Period"] == "1":
             df.loc[i,"tag_0"] = df.loc[i,"tag_0"]
+            df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
         elif df.loc[i, "Period"] == "2":
             df.loc[i,"tag_0"] = str(int(df.loc[i,"tag_0"]) + 20)
+            df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
         elif df.loc[i, "Period"] == "3":
             df.loc[i,"tag_0"] = str(int(df.loc[i,"tag_0"]) + 40)
-    df["Time in Game"] = "00:" + df["tag_0"] + ":" + df["tag_1"]
+            df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
+        elif df.loc[i, "Period"] == "OT1":
+            df.loc[i,'Time in Game'] = "01:" +  df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
+            #df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
+        elif df.loc[i, "Period"] == "OT2":
+            df.loc[i,'Time in Game'] = "01:" + str(int(df.loc[i,"tag_0"]) + 5) + ":" + df.loc[i,"tag_1"]
+
+    for i in range(0, len(df)):
+        df.loc[i,"Seconds"] = time.strptime(df["Time in Game"][i],'%H:%M:%S').tm_sec + \
+                                time.strptime(df["Time in Game"][i],'%H:%M:%S').tm_min*60 + \
+                                time.strptime(df["Time in Game"][i],'%H:%M:%S').tm_hour*3600
+    
+    #df["Time in Game"] = "00:" + df["tag_0"] + ":" + df["tag_1"]
     df['Time in Game'] = pd.to_datetime(df['Time in Game']).dt.time #The .dt is called a .dt accessor
     df = df.drop(["Time in Period (split)", "tag_0", "tag_1"], axis = 1)
     df['Time in Period'] = "00:" + df["Time in Period"]
     df['Time in Period'] = pd.to_datetime(df['Time in Period']).dt.time
     df["Date"] = str(dates)[:8]
     df["Date"] = pd.to_datetime(df["Date"])
-     df["Home Team"] = str(dates)[9:]
+    df["Home Team"] = str(dates)[9:]
 
     df["Game Goal Number"]  = df.index+1
     
-  #The following custom function came from Stack Overflow:
+    #The following custom function came from Stack Overflow:
     # https://stackoverflow.com/questions/25119524/pandas-conditional-rolling-count
     def count_consecutive_items_n_cols(df, col_name_list, output_col):
         cum_sum_list = [
@@ -76,7 +90,6 @@ def JustRegularGoals(df, dates):
     df = df.sort_values(by=['Team'])
     df = count_consecutive_items_n_cols(df, ["Team", "Date"], "Team Goal Number")
     df = df.sort_values(by=['Game Goal Number'])
-
 
 ##
     
@@ -103,10 +116,11 @@ def JustRegularGoals(df, dates):
         elif abs(df.loc[k, "AwayGoal"] - df.loc[k, "HomeGoal"]) > abs(df.loc[k-1, "AwayGoal"] - df.loc[k-1, "HomeGoal"]):
             df.loc[k, "Impact"] = "Insurance Goal"
         else:
-            df.loc[k,"Impact"] = "Lead Shrunk"
+            df.loc[k,"Impact"] = "Lead Shrink"
+
 
 ##
-
+        
     cleanedDF = df
     return cleanedDF    
     
