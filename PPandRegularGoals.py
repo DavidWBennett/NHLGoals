@@ -25,10 +25,10 @@ def PPandRegularGoals(df, dates):
     df["tag_11_length"] = df["tag_11"].str.len()
     
     for i in range(0,len(df)):
-        if df.loc[i,"tag_4_length"] ==2:
+        if df.loc[i,"tag_4_length"] == 2:
             df.loc[i,'tag_3'] = df.loc[i,"tag_4"]
-        elif df.loc[i,"tag_4_length"] == 4:#
-            df.loc[i,'tag_3'] = df.loc[i,"tag_4"]#
+        elif df.loc[i,"tag_4_length"] == 4:
+            df.loc[i,'tag_3'] = df.loc[i,"tag_4"]
         elif df.loc[i,"tag_6_length"] ==2:
             df.loc[i,'tag_3'] = df.loc[i,"tag_6"]
             df.loc[i,'tag_6'] = np.NaN
@@ -54,7 +54,6 @@ def PPandRegularGoals(df, dates):
             df.loc[i,'tag_6'] = df.loc[i,"tag_6"]
          
     df = df.iloc[:, 1:8]
-    df
     df.columns = ['Period', 'Time in Period', "Team", "Type", 'Scorer', 'Assist1', 'Assist2']
     df['Period'] = df['Period'].str.strip('[')
              
@@ -66,8 +65,8 @@ def PPandRegularGoals(df, dates):
     df = df.dropna(thresh = 4).reset_index().drop(['index'], axis = 1)
     df['Scorer'], df['Season Goal Number'] = df['Scorer'].str.split('(',1).str
     df['Season Goal Number'] = df['Season Goal Number'].str.rstrip(')')
-    df['Period'] = df['Period'].str.replace(r"[a-zA-Z]", "").str.strip().astype(int)
-    df['Assist2'] = df['Assist2'].str.lstrip(' and ')
+    df['Period'] = df['Period'].str.replace(r"[a-zA-Z]", "").str.strip()#.astype(int)
+    #df['Assist2'] = df['Assist2'].str.strip(' and ')
     df['Date'] = dates
         
     df["Time in Period (split)"] = df["Time in Period"].str.split(":")
@@ -76,13 +75,27 @@ def PPandRegularGoals(df, dates):
     df = pd.concat([df[:], tags[:]], axis = 1)
         
     for i in range(0,len(df)):
-        if df.loc[i,"Period"] == 1:
+        if df.loc[i,"Period"] == "1":
             df.loc[i,"tag_0"] = df.loc[i,"tag_0"]
-        elif df.loc[i, "Period"] == 2:
+            df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
+        elif df.loc[i, "Period"] == "2":
             df.loc[i,"tag_0"] = str(int(df.loc[i,"tag_0"]) + 20)
-        elif df.loc[i, "Period"] == 3:
+            df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
+        elif df.loc[i, "Period"] == "3":
             df.loc[i,"tag_0"] = str(int(df.loc[i,"tag_0"]) + 40)
-    df["Time in Game"] = "00:" + df["tag_0"] + ":" + df["tag_1"]
+            df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
+        elif df.loc[i, "Period"] == "OT1":
+            df.loc[i,'Time in Game'] = "01:" +  df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
+            #df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
+        elif df.loc[i, "Period"] == "OT2":
+            df.loc[i,'Time in Game'] = "01:" + str(int(df.loc[i,"tag_0"]) + 5) + ":" + df.loc[i,"tag_1"]
+
+    for i in range(0, len(df)):
+        df.loc[i,"Seconds"] = time.strptime(df["Time in Game"][i],'%H:%M:%S').tm_sec + \
+                                time.strptime(df["Time in Game"][i],'%H:%M:%S').tm_min*60 + \
+                                time.strptime(df["Time in Game"][i],'%H:%M:%S').tm_hour*3600
+    
+    #df["Time in Game"] = "00:" + df["tag_0"] + ":" + df["tag_1"]
     df['Time in Game'] = pd.to_datetime(df['Time in Game']).dt.time #The .dt is called a .dt accessor
     df = df.drop(["Time in Period (split)", "tag_0", "tag_1"], axis = 1)
     df['Time in Period'] = "00:" + df["Time in Period"]
@@ -92,7 +105,8 @@ def PPandRegularGoals(df, dates):
     df["Home Team"] = str(dates)[9:]
     
     df["Game Goal Number"]  = df.index+1
- #The following custom function came from Stack Overflow:
+    
+   #The following custom function came from Stack Overflow:
     # https://stackoverflow.com/questions/25119524/pandas-conditional-rolling-count
     def count_consecutive_items_n_cols(df, col_name_list, output_col):
         cum_sum_list = [
@@ -132,10 +146,13 @@ def PPandRegularGoals(df, dates):
         elif abs(df.loc[k, "AwayGoal"] - df.loc[k, "HomeGoal"]) > abs(df.loc[k-1, "AwayGoal"] - df.loc[k-1, "HomeGoal"]):
             df.loc[k, "Impact"] = "Insurance Goal"
         else:
-            df.loc[k,"Impact"] = "Lead Shrunk"
+            df.loc[k,"Impact"] = "Lead Shrink"
+
+##
     
     cleanedDF = df
-    return cleanedDF    
+    return cleanedDF       
+    
     
 
 ######################
