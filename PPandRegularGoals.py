@@ -92,8 +92,7 @@ def PPandRegularGoals(df, dates):
     df["Home Team"] = str(dates)[9:]
     
     df["Game Goal Number"]  = df.index+1
-    
-    #The following user defined function came from StackOverflow
+ #The following custom function came from Stack Overflow:
     # https://stackoverflow.com/questions/25119524/pandas-conditional-rolling-count
     def count_consecutive_items_n_cols(df, col_name_list, output_col):
         cum_sum_list = [
@@ -104,7 +103,36 @@ def PPandRegularGoals(df, dates):
         ).cumcount() + 1
         return df
     df = df.sort_values(by=['Team'])
-    cleanedDF = count_consecutive_items_n_cols(df, ["Team", "Date"], "Team Goal Number")
+    df = count_consecutive_items_n_cols(df, ["Team", "Date"], "Team Goal Number")
+    df = df.sort_values(by=['Game Goal Number'])
+
+
+##
+    
+    for k in range(0,len(df)):
+        if df.loc[k, "Game Goal Number"] == 1:
+            if df.loc[k, "Team"] == df.loc[k,"Home Team"]:
+                df.loc[k,"AwayGoal"] = 0 
+                df.loc[k,"HomeGoal"] = 1
+            else:
+                df.loc[k,"AwayGoal"] = 1
+                df.loc[k,"HomeGoal"] = 0
+        elif df.loc[k, "Team"] == df.loc[k,"Home Team"]:
+            df.loc[k,"AwayGoal"] = df.loc[k-1,"AwayGoal"]
+            df.loc[k,"HomeGoal"] = df.loc[k-1, "HomeGoal"] +1
+        else:
+            df.loc[k,"AwayGoal"] = df.loc[k-1, "AwayGoal"] +1
+            df.loc[k,"HomeGoal"] = df.loc[k-1, "HomeGoal"]
+    
+    for k in range(0,len(df)):
+        if abs(df.loc[k, "AwayGoal"] - df.loc[k, "HomeGoal"]) == 1:
+            df.loc[k,"Impact"] = "Go-Ahead Goal"
+        elif abs(df.loc[k, "AwayGoal"] - df.loc[k, "HomeGoal"]) == 0:
+            df.loc[k,"Impact"] = "Tie"
+        elif abs(df.loc[k, "AwayGoal"] - df.loc[k, "HomeGoal"]) > abs(df.loc[k-1, "AwayGoal"] - df.loc[k-1, "HomeGoal"]):
+            df.loc[k, "Impact"] = "Insurance Goal"
+        else:
+            df.loc[k,"Impact"] = "Lead Shrunk"
     
     cleanedDF = df
     return cleanedDF    
