@@ -66,9 +66,10 @@ def PPandRegularGoals(df, dates):
     df['Scorer'], df['Season Goal Number'] = df['Scorer'].str.split('(',1).str
     df['Season Goal Number'] = df['Season Goal Number'].str.rstrip(')')
     df['Period'] = df['Period'].str.replace(r"[a-zA-Z]", "").str.strip()#.astype(int)
-    #df['Assist2'] = df['Assist2'].str.strip(' and ')
+    df['Assist2'] = df['Assist2'].replace(np.NaN, "")
     df['Date'] = dates
         
+    df['Assist2'] = df['Assist2'].str.lstrip(' and ')
     df["Time in Period (split)"] = df["Time in Period"].str.split(":")
     tags = df["Time in Period (split)"].apply(pd.Series)
     tags = tags.rename(columns = lambda x: 'tag_' + str(x))
@@ -86,7 +87,6 @@ def PPandRegularGoals(df, dates):
             df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
         elif df.loc[i, "Period"] == "OT1":
             df.loc[i,'Time in Game'] = "01:" +  df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
-            #df.loc[i,"Time in Game"] = "00:" + df.loc[i,"tag_0"] + ":" + df.loc[i,"tag_1"]
         elif df.loc[i, "Period"] == "OT2":
             df.loc[i,'Time in Game'] = "01:" + str(int(df.loc[i,"tag_0"]) + 5) + ":" + df.loc[i,"tag_1"]
 
@@ -95,7 +95,6 @@ def PPandRegularGoals(df, dates):
                                 time.strptime(df["Time in Game"][i],'%H:%M:%S').tm_min*60 + \
                                 time.strptime(df["Time in Game"][i],'%H:%M:%S').tm_hour*3600
     
-    #df["Time in Game"] = "00:" + df["tag_0"] + ":" + df["tag_1"]
     df['Time in Game'] = pd.to_datetime(df['Time in Game']).dt.time #The .dt is called a .dt accessor
     df = df.drop(["Time in Period (split)", "tag_0", "tag_1"], axis = 1)
     df['Time in Period'] = "00:" + df["Time in Period"]
@@ -120,8 +119,6 @@ def PPandRegularGoals(df, dates):
     df = count_consecutive_items_n_cols(df, ["Team", "Date"], "Team Goal Number")
     df = df.sort_values(by=['Game Goal Number'])
 
-
-##
     
     for k in range(0,len(df)):
         if df.loc[k, "Game Goal Number"] == 1:
@@ -147,14 +144,14 @@ def PPandRegularGoals(df, dates):
             df.loc[k, "Impact"] = "Insurance Goal"
         else:
             df.loc[k,"Impact"] = "Lead Shrink"
-
+            
+    #
     if df.loc[max(df.index), "HomeGoal"] > df.loc[max(df.index), "AwayGoal"]:
         df["Winner"] = df.loc[max(df.index), "Home Team"]
     elif df.loc[max(df.index), "HomeGoal"] < df.loc[max(df.index), "AwayGoal"]:
         awayteam = df["Team"].unique() != df["Home Team"].unique()
         df["Winner"] = df["Team"].unique()[awayteam][0]
     else: df["Winner"] = "Shootout"
-##
     
     cleanedDF = df
     return cleanedDF       
