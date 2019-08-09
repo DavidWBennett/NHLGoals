@@ -118,7 +118,12 @@ def JustRegularGoals(df, dates):
         else:
             df.loc[k,"Impact"] = "Lead Shrink"
 
-
+    if df.loc[max(df.index), "HomeGoal"] > df.loc[max(df.index), "AwayGoal"]:
+        df["Winner"] = df.loc[max(df.index), "Home Team"]
+    elif df.loc[max(df.index), "HomeGoal"] < df.loc[max(df.index), "AwayGoal"]:
+        awayteam = df["Team"].unique() != df["Home Team"].unique()
+        df["Winner"] = df["Team"].unique()[awayteam][0]
+    else: df["Winner"] = "Shootout"
 ##
         
     cleanedDF = df
