@@ -124,7 +124,7 @@ def JustRegularGoals(df, dates):
         awayteam = df["Team"].unique() != df["Home Team"].unique()
         df["Winner"] = df["Team"].unique()[awayteam][0]
     else: df["Winner"] = "Shootout"
-##
+    ##
         
     cleanedDF = df
     return cleanedDF    
