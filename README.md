@@ -12,7 +12,8 @@ ScheduleFunction.py pulls in all the schedules for each team. You can change the
 The HockeyFunctions.py file is where the functions are applied and the dataset is created.
 The JustRegularGoals.py file is for those goals where no special type of goal (such as a PP or EN) were scored.
 The PPandRegularGoals.py file if for those goals where a special type of goal (such as a PP or EN) were scored. 
+The GoalsVisualized.py file is where I've been doing some initial visualization work.
 Please feel free to provide feedback or suggestions on how to make this better.
 
 Thank you,
-David Bennett
+David
